@@ -34,6 +34,7 @@ while True:
         conn.send(b"hello")
         time.sleep(0.25);       # delay 1/4s
         conn.send(b"world")
-        conn.shutdown(socket.SHUT_WR)
+        conn.shutdown(socket.SHUT_WR)   # shutdown socket object
+        sys.exit(0)
 
 

@@ -27,8 +27,12 @@ except:
     print("Can't parse server:port from '%s'" % server)
     sys.exit(1)
 
+# Function -> socket.getaddrinfo(host, port, family=0, type=0, proto=0, flags=0)
+# Returns a list of tuples containing info about socket(s) that can be created with service
+
 s = None
 for res in socket.getaddrinfo(serverHost, serverPort, socket.AF_UNSPEC, socket.SOCK_STREAM):
+    # AddressFamily, SocketKind, Proto, Cannonname, ServerAddress
     af, socktype, proto, canonname, sa = res
     try:
         print("creating sock: af=%d, type=%d, proto=%d" % (af, socktype, proto))
@@ -63,4 +67,4 @@ while 1:
     if len(data) == 0:
         break
 print("Zero length read.  Closing")
-s.close()
+s.close()   # Close
