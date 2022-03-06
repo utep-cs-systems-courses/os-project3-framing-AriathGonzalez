@@ -12,7 +12,7 @@ def runServer():
       paramMap = params.parseParams(switchesVarDefaults)
 
       listenPort = paramMap["listenPort"]
-      listenAddr = ' '  # Symbolic name meaning all available interfaces
+      listenAddr = ''  # Symbolic name meaning all available interfaces
 
       s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create Socket
       s.bind((listenAddr, listenPort))  # Bind socket to address (Ready to listen at a loc)
@@ -37,7 +37,6 @@ def runServer():
           while len(sendMsg):
               bytesSent = conn.send(sendMsg)  # Returns the number of bytes sent
               sendMsg = sendMsg[bytesSent:0]
-
 
       conn.shutdown(socket.SHUT_WR) # Im not going to send anymore, but I'll still listen
       conn.close() # Disconnect socket

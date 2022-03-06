@@ -63,7 +63,7 @@ def client():
         print("Received '%s'" % data)
         if len(data) == 0:
             break
-        print("Zero length read. Closing")
-        s.close()
+    print("Zero length read. Closing")
+    s.close()
 
 client()              
