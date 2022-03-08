@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
-import socket, sys, re
+import os, re, socket, sys
+from archiver import *
 sys.path.append("../lib")
 import params
 
@@ -47,23 +48,44 @@ def client():
         print("Could not open socket")
         sys.exit(1)
 
-    outMessage = "Hello world!".encode()
-    while len(outMessage):
-        print("sending '%s'" % outMessage.decode())
-        bytesSent = s.send(outMessage)
-        outMessage = outMessage[bytesSent:]
 
-    data = s.recv(1024).decode()
-    print("Received '%s'" % data)
+    while 1:
+        # Receive file
+        fileName = input().strip()
+
+        path = os.path.abspath("files") + '/' + fileName
+        
+        # Check if file sent exists
+        if os.path.exists(path):
+           # Open and read file
+            inFile = open(path, "rb")
+            data = inFile.read()
+
+            # Check if empty
+            if len(data) == 0:
+                sys.exit(1)
+
+            # Send frames to Server
+            frameWriter(s, data)
+            inFile.close()
+            
+    #outMessage = "Hello world!".encode()
+    #while len(outMessage):
+        #print("sending '%s'" % outMessage.decode())
+        #bytesSent = s.send(outMessage)
+        #outMessage = outMessage[bytesSent:]
+
+    #data = s.recv(1024).decode()
+    #print("Received '%s'" % data)
 
     s.shutdown(socket.SHUT_WR)   # No more output
 
-    while 1:
-        data = s.recv(1024).decode()
-        print("Received '%s'" % data)
-        if len(data) == 0:
-            break
-    print("Zero length read. Closing")
+    #while 1:
+        #data = s.recv(1024).decode()
+        #print("Received '%s'" % data)
+        #if len(data) == 0:
+            #break
+    #print("Zero length read. Closing")
     s.close()
 
 client()              
