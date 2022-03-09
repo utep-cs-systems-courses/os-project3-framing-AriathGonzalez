@@ -52,6 +52,7 @@ def client():
     while 1:
         # Receive file
         fileName = input().strip()
+        fileLen = len(fileName)
 
         path = os.path.abspath("files") + '/' + fileName
         
@@ -59,33 +60,24 @@ def client():
         if os.path.exists(path):
            # Open and read file
             inFile = open(path, "rb")
-            data = inFile.read()
+            fileContent = inFile.read()
 
             # Check if empty
-            if len(data) == 0:
+            if len(fileContent) == 0:
                 sys.exit(1)
 
             # Send frames to Server
-            frameWriter(s, data)
+            frameWriter(s, fileLen, fileName.encode(), fileContent)
             inFile.close()
+
+            #s.shutdown(socket.SHUT_WR)   # No more output
+
+            # Check if successful transfer -> Receive code from server?
+
+            #s.close()
             
-    #outMessage = "Hello world!".encode()
-    #while len(outMessage):
-        #print("sending '%s'" % outMessage.decode())
-        #bytesSent = s.send(outMessage)
-        #outMessage = outMessage[bytesSent:]
-
-    #data = s.recv(1024).decode()
-    #print("Received '%s'" % data)
-
-    s.shutdown(socket.SHUT_WR)   # No more output
-
-    #while 1:
-        #data = s.recv(1024).decode()
-        #print("Received '%s'" % data)
-        #if len(data) == 0:
-            #break
-    #print("Zero length read. Closing")
-    s.close()
-
+        # No such file
+        else:
+            print ("No such file")
+            sys.exit(1)
 client()              

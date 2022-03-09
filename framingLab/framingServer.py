@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import os, re, socket, sys
+from archiver import *
 sys.path.append("../lib")
 import params
 
@@ -26,26 +27,26 @@ def runServer():
             conn, addr = s.accept()   # Accept incoming request
             
             if os.fork() == 0:   # Child becomes server
-
+                  frameReader(conn)
                   # Receive files from client -> Try Except
 
                   # Save files to Database
 
-                  data = conn.recv(1024).decode() # Receive data from socket
+                  #data = conn.recv(1024).decode() # Receive data from socket
 
-                  if len(data) == 0:
-                        print ("Zero length read, nothing to send, terminating")
-                        break
+                  #if len(data) == 0:
+                       # print ("Zero length read, nothing to send, terminating")
+                        #break
 
 
-                  sendMsg = ("Echoing %s" % data).encode()
-                  print ("Received '%s', sending '%s'" % (data, sendMsg.decode()))
+                  #sendMsg = ("Echoing %s" % data).encode()
+                  #print ("Received '%s', sending '%s'" % (data, sendMsg.decode()))
 
-                  while len(sendMsg):
-                        bytesSent = conn.send(sendMsg)  # Returns the number of bytes sent
-                        sendMsg = sendMsg[bytesSent:0]
+                  #while len(sendMsg):
+                       # bytesSent = conn.send(sendMsg)  # Returns the number of bytes sent
+                        #sendMsg = sendMsg[bytesSent:0]
 
-                  conn.shutdown(socket.SHUT_WR) # Im not going to send anymore, but I'll still listen
-                  conn.close() # Disconnect socket
+                  #conn.shutdown(socket.SHUT_WR) # Im not going to send anymore, but I'll still listen
+                  #conn.close() # Disconnect socket
 
 runServer()
