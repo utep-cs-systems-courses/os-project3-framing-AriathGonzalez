@@ -54,10 +54,11 @@ def client():
         fileName = input().strip()
         nameLen = str(len(fileName))
 
-        path = os.path.abspath("files") + '/' + fileName
+        path = "files/" + fileName
         
         # Check if file sent exists
         if os.path.exists(path):
+            print ("Checking if file exists...")
             # Open and read file
             inFile = open(path, "rb")
             fileContent = inFile.read()

@@ -2,6 +2,7 @@ import socket, sys, re
 
 # Send nameLen, fileName, and fileContent to server 
 def frameWriter(socket, nameLen, fileName, fileContent):
+    print ("In frameWriter...")
     socket.send(nameLen)
     while (len(fileName)):
         bytesSent = socket.send(fileName)
@@ -13,6 +14,7 @@ def frameWriter(socket, nameLen, fileName, fileContent):
 
 # Receive nameLen, fileName, and fileContent from Client
 def frameReader(conn):
+    print ("In frameReader...")
     data = conn.recv(1024).decode()
 
     if len(data) == 0:
@@ -28,7 +30,7 @@ def frameReader(conn):
     data = data [nameLen:]
     
     # Get File Contents
-    fileContents = data
+    fileContent = data
 
     # Send Status Code - Success
 

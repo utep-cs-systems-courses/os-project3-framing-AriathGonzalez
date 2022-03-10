@@ -5,6 +5,21 @@ from framingSocket import *
 sys.path.append("../lib")
 import params
 
+def saveToDB(fileName, fileContent):
+      path = "database/" + fileName
+                  
+      # Create file if it doesnt exist
+      if not os.path.exists(path):
+            print (os.getcwd())
+            os.chdir("database")
+            #os.makedirs(fileName)
+            print (os.getcwd())
+            open(fileName, 'x')
+
+      # Write to file
+      with open(fileName, "w") as outFile:
+            outFile.write(fileContent)
+                  
 def runServer():
       switchesVarDefaults = (
           (('-l', "--listenPort"), "listenPort", 50001),
@@ -28,34 +43,13 @@ def runServer():
             
             if os.fork() == 0:   # Child becomes server
                   fileName, fileContent = frameReader(conn)
+                  print ("Back in Server...")
 
                   # Receive files from client -> Try Except
 
                   # Save files to Database
-                  path = os.path.abspath("database") + '/' + fileName
-
-                  # Create file
-                  if not os.path.exists(path):
-                        os.makedirs(path)
-
-                  # Write to file
-                  with open(path, "wb") as outFile:
-                        outFile.write(fileContent)
+                  saveToDB(fileName, fileContent)
                         
-                  #data = conn.recv(1024).decode() # Receive data from socket
-
-                  #if len(data) == 0:
-                       # print ("Zero length read, nothing to send, terminating")
-                        #break
-
-
-                  #sendMsg = ("Echoing %s" % data).encode()
-                  #print ("Received '%s', sending '%s'" % (data, sendMsg.decode()))
-
-                  #while len(sendMsg):
-                       # bytesSent = conn.send(sendMsg)  # Returns the number of bytes sent
-                        #sendMsg = sendMsg[bytesSent:0]
-
                   #conn.shutdown(socket.SHUT_WR) # Im not going to send anymore, but I'll still listen
                   #conn.close() # Disconnect socket
 
