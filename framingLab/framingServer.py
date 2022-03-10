@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import os, re, socket, sys
-from archiver import *
+from framingSocket import *
 sys.path.append("../lib")
 import params
 
@@ -15,7 +15,7 @@ def runServer():
       listenPort = paramMap["listenPort"]
       listenAddr = ''  # Symbolic name meaning all available interfaces
 
-      s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create sockeet to listen
+      s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create socket to listen
       s.bind((listenAddr, listenPort))  # Bind socket to address (Ready to listen at a loc)
       s.listen(2) # Allow up to 2 connections
       
@@ -27,11 +27,21 @@ def runServer():
             conn, addr = s.accept()   # Accept incoming request
             
             if os.fork() == 0:   # Child becomes server
-                  frameReader(conn)
+                  fileName, fileContent = frameReader(conn)
+
                   # Receive files from client -> Try Except
 
                   # Save files to Database
+                  path = os.path.abspath("database") + '/' + fileName
 
+                  # Create file
+                  if not os.path.exists(path):
+                        os.makedirs(path)
+
+                  # Write to file
+                  with open(path, "wb") as outFile:
+                        outFile.write(fileContent)
+                        
                   #data = conn.recv(1024).decode() # Receive data from socket
 
                   #if len(data) == 0:

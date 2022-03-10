@@ -1,7 +1,8 @@
 import socket, sys, re
 
-def frameWriter(socket, fileLen, fileName, fileContent):
-    # Try sending fileName first, and then the filecontent
+# Send nameLen, fileName, and fileContent to server 
+def frameWriter(socket, nameLen, fileName, fileContent):
+    socket.send(nameLen)
     while (len(fileName)):
         bytesSent = socket.send(fileName)
         fileName = fileName[bytesSent:]
@@ -9,19 +10,31 @@ def frameWriter(socket, fileLen, fileName, fileContent):
     while (len(fileContent)):
         bytesSent = socket.send(fileContent)
         fileContent = fileContent[bytesSent:]
-    #while len(data):
-        #bytesSent = socket.send(data)
-        #data = data[bytesSent:]
 
+# Receive nameLen, fileName, and fileContent from Client
 def frameReader(conn):
     data = conn.recv(1024).decode()
 
-    # Check if len of data is 0
     if len(data) == 0:
         print ("Nothing read, terminating...")
         sys.exit(1)
         
-    print ("Received '%s'" % (data))
+    # Get Length
+    nameLen = int(data[0])
+    data = data[1:]
+
+    # Get File Name
+    fileName = data[0: nameLen]
+    data = data [nameLen:]
+    
+    # Get File Contents
+    fileContents = data
+
+    # Send Status Code - Success
+
+    return fileName, fileContent
+    
+    #print ("Received '%s'" % (data))
 
     # Send Status Code 1 - Success, 0 - Fail
 

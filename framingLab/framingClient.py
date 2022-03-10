@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import os, re, socket, sys
-from archiver import *
+from framingSocket import *
 sys.path.append("../lib")
 import params
 
@@ -50,15 +50,15 @@ def client():
 
 
     while 1:
-        # Receive file
+        # Receive file from user
         fileName = input().strip()
-        fileLen = len(fileName)
+        nameLen = str(len(fileName))
 
         path = os.path.abspath("files") + '/' + fileName
         
         # Check if file sent exists
         if os.path.exists(path):
-           # Open and read file
+            # Open and read file
             inFile = open(path, "rb")
             fileContent = inFile.read()
 
@@ -67,7 +67,7 @@ def client():
                 sys.exit(1)
 
             # Send frames to Server
-            frameWriter(s, fileLen, fileName.encode(), fileContent)
+            frameWriter(s, nameLen.encode(), fileName.encode(), fileContent)
             inFile.close()
 
             #s.shutdown(socket.SHUT_WR)   # No more output
