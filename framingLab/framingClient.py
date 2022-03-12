@@ -55,10 +55,11 @@ def client():
         nameLen = str(len(fileName))
 
         path = "files/" + fileName
-        
+        if (fileName == "exit"):
+            sys.exit(1)
+            
         # Check if file sent exists
         if os.path.exists(path):
-            print ("Checking if file exists...")
             # Open and read file
             inFile = open(path, "rb")
             fileContent = inFile.read()
@@ -71,10 +72,16 @@ def client():
             frameWriter(s, nameLen.encode(), fileName.encode(), fileContent)
             inFile.close()
 
+            # Check if successful transfer
+            status = s.recv(1024).decode()
+            status = int(status)
+            if (status):
+                print ("Successful in adding new file to Database.")
+                sys.exit(1)
+            elif (not status):
+                print ("Unsuccessful in adding new file to Database.")
+                sys.exit(0)
             #s.shutdown(socket.SHUT_WR)   # No more output
-
-            # Check if successful transfer -> Receive code from server?
-
             #s.close()
             
         # No such file

@@ -5,20 +5,19 @@ from framingSocket import *
 sys.path.append("../lib")
 import params
 
-def saveToDB(fileName, fileContent):
+def saveToDB(socket, fileName, fileContent):
       path = "database/" + fileName
                   
       # Create file if it doesnt exist
       if not os.path.exists(path):
-            print (os.getcwd())
             os.chdir("database")
-            #os.makedirs(fileName)
-            print (os.getcwd())
             open(fileName, 'x')
 
-      # Write to file
-      with open(fileName, "w") as outFile:
-            outFile.write(fileContent)
+            # Write to file
+            with open(fileName, "w") as outFile:
+                  outFile.write(fileContent)
+            socket.send("1".encode())   # Success
+      socket.send("0".encode())
                   
 def runServer():
       switchesVarDefaults = (
@@ -40,15 +39,15 @@ def runServer():
 
       while 1:
             conn, addr = s.accept()   # Accept incoming request
-            
+            print('Connected by', addr)
+
             if os.fork() == 0:   # Child becomes server
                   fileName, fileContent = frameReader(conn)
-                  print ("Back in Server...")
 
                   # Receive files from client -> Try Except
 
                   # Save files to Database
-                  saveToDB(fileName, fileContent)
+                  saveToDB(conn, fileName, fileContent)
                         
                   #conn.shutdown(socket.SHUT_WR) # Im not going to send anymore, but I'll still listen
                   #conn.close() # Disconnect socket
