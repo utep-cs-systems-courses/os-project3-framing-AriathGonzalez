@@ -42,12 +42,12 @@ def runServer():
             print('Connected by', addr)
 
             if os.fork() == 0:   # Child becomes server
-                  fileName, fileContent = frameReader(conn)
+                  frameReader(conn)
 
                   # Receive files from client -> Try Except
 
                   # Save files to Database
-                  saveToDB(conn, fileName, fileContent)
+                  #saveToDB(conn, fileName, fileContent)
                         
                   #conn.shutdown(socket.SHUT_WR) # Im not going to send anymore, but I'll still listen
                   #conn.close() # Disconnect socket

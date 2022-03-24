@@ -5,6 +5,23 @@ from framingSocket import *
 sys.path.append("../lib")
 import params
 
+def archiver(fileList):
+    compressedFile = []
+    for fileName in fileList:
+        # If file exists, add to compression
+        path = "files/" + fileName
+        if os.path.exists(path):
+            # Open and read file
+            name = fileName.encode()
+            nameSize = str(len(name))
+            inFile = open(path, "rb")
+            content = inFile.read()
+            contentSize = str(len(content))
+            inFile.close()
+            compressedFile.append(nameSize.encode() + name + contentSize.encode() + content)
+            
+    return compressedFile
+
 def client():
     switchesVarDefaults = (
         (('-s', "--server"), "server", "127.0.0.1:50001"),
@@ -50,42 +67,12 @@ def client():
 
 
     while 1:
-        # Receive file from user
-        fileName = input().strip()
-        nameLen = str(len(fileName))
+        
+        # Receive files from user
+        files = input().strip()
 
-        path = "files/" + fileName
-        if (fileName == "exit"):
-            sys.exit(1)
-            
-        # Check if file sent exists
-        if os.path.exists(path):
-            # Open and read file
-            inFile = open(path, "rb")
-            fileContent = inFile.read()
+        fileList = files.split()
+        compressedFile = archiver(fileList)
 
-            # Check if empty
-            if len(fileContent) == 0:
-                sys.exit(1)
-
-            # Send frames to Server
-            frameWriter(s, nameLen.encode(), fileName.encode(), fileContent)
-            inFile.close()
-
-            # Check if successful transfer
-            status = s.recv(1024).decode()
-            status = int(status)
-            if (status):
-                print ("Successful in adding new file to Database.")
-                sys.exit(1)
-            elif (not status):
-                print ("Unsuccessful in adding new file to Database.")
-                sys.exit(0)
-            #s.shutdown(socket.SHUT_WR)   # No more output
-            #s.close()
-            
-        # No such file
-        else:
-            print ("No such file")
-            sys.exit(1)
+        frameWriter(s, compressedFile)
 client()              
