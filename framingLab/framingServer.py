@@ -5,20 +5,23 @@ from framingSocket import *
 sys.path.append("../lib")
 import params
 
-def saveToDB(socket, fileName, fileContent):
-      path = "database/" + fileName
+def saveToDB(socket, nameList, contentList):
+      os.chdir("database")
+      for i in range(len(nameList)):
+            fileName = nameList[i]
+            path = "database/" + fileName
                   
-      # Create file if it doesnt exist
-      if not os.path.exists(path):
-            os.chdir("database")
-            open(fileName, 'x')
+            # Create file if it doesnt exist
+            if not os.path.exists(path):
+                  open(fileName, 'x')
 
-            # Write to file
-            with open(fileName, "w") as outFile:
-                  outFile.write(fileContent)
-            socket.send("1".encode())   # Success
-      socket.send("0".encode())
-                  
+                  # Write to file
+                  with open(fileName, "w") as outFile:
+                        outFile.write(contentList[i])
+            elif os.path.exists(path):
+                  print ("File already exists in database")
+      socket.send("1".encode())   # Success
+                            
 def runServer():
       switchesVarDefaults = (
           (('-l', "--listenPort"), "listenPort", 50001),
@@ -42,14 +45,9 @@ def runServer():
             print('Connected by', addr)
 
             if os.fork() == 0:   # Child becomes server
-                  frameReader(conn)
-
-                  # Receive files from client -> Try Except
-
+                  nameList, contentList = frameReader(conn)
+                  
                   # Save files to Database
-                  #saveToDB(conn, fileName, fileContent)
+                  saveToDB(conn, nameList, contentList)
                         
-                  #conn.shutdown(socket.SHUT_WR) # Im not going to send anymore, but I'll still listen
-                  #conn.close() # Disconnect socket
-
 runServer()

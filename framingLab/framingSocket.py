@@ -2,10 +2,9 @@ import socket, sys, re
 
 # Send compressed file to Server
 def frameWriter(socket, compressedFile):
-    for singleFile in compressedFile:
-        while len(singleFile):
-            bytesSent = socket.send(singleFile)
-            singleFile = singleFile[bytesSent:]
+    while len(compressedFile):
+        bytesSent = socket.send(compressedFile)
+        compressedFile = compressedFile[bytesSent:]
     
 # Decompress compressed file from Client
 def frameReader(conn):
@@ -23,16 +22,15 @@ def frameReader(conn):
 
     while len(data):
         # Get Name
-        nameSize = int(data[0])
-        data = data[1:]
+        nameSize = int(data[:firstChar(data)])
+        data = data[firstChar(data):]
         
         name = data[0:nameSize]
-        #print (name)
         data = data[nameSize:]
-        #print(data)
+        
         # Get Content
-        contentSize = int(data[0])
-        data = data[1:]
+        contentSize = int(data[:firstChar(data)])
+        data = data[firstChar(data):]
 
         content = data[0:contentSize]
         data = data[contentSize:]
@@ -40,5 +38,13 @@ def frameReader(conn):
         # Append to lists
         nameList.append(name)
         contentList.append(content)
-        
-    #conn.shutdown(socket.SHUT_RD)   # No more input
+    return (nameList, contentList)
+    
+# Finds position of first character, to get the size of files
+def firstChar(data):
+    for i in range(len(data)):
+        if data[i].isalpha():
+            return i
+    return -1
+                       
+                       

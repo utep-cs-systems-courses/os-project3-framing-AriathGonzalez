@@ -10,17 +10,25 @@ def archiver(fileList):
     for fileName in fileList:
         # If file exists, add to compression
         path = "files/" + fileName
+        
         if os.path.exists(path):
             # Open and read file
-            name = fileName.encode()
+            name = fileName
             nameSize = str(len(name))
-            inFile = open(path, "rb")
+            inFile = open(path, 'r')
             content = inFile.read()
             contentSize = str(len(content))
             inFile.close()
-            compressedFile.append(nameSize.encode() + name + contentSize.encode() + content)
-            
-    return compressedFile
+
+            # Only add if file is not empty
+            if contentSize == '0':
+                print ("File Empty")
+            else:
+                compressedFile.append(nameSize + name + contentSize + content)
+
+    # Join as string then encode
+    compressedFile = ''.join(compressedFile)
+    return compressedFile.encode()
 
 def client():
     switchesVarDefaults = (
@@ -73,6 +81,16 @@ def client():
 
         fileList = files.split()
         compressedFile = archiver(fileList)
-
         frameWriter(s, compressedFile)
+        
+        # Check if successful transfer
+        status = s.recv(1024).decode()
+        status = int(status)
+        
+        if (status):
+            print ("Successful in adding new file to Database.")
+            sys.exit(1)
+        elif (not status):
+            print ("Unsuccessful in adding new file to Database.")
+            sys.exit(0)
 client()              
