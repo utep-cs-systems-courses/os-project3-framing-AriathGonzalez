@@ -34,11 +34,7 @@ def runServer():
 
       s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create socket to listen
       s.bind((listenAddr, listenPort))  # Bind socket to address (Ready to listen at a loc)
-      s.listen(2) # Allow up to 2 connections
-      
-      # Returns pair (conn, addr)
-      # conn is a new socket to send and receive data on the connection
-      # addr is the addr bound to the socket on the other end of the connection (connected by)
+      s.listen(5) # Allow up to 5 connections
 
       while 1:
             conn, addr = s.accept()   # Accept incoming request
@@ -49,5 +45,4 @@ def runServer():
                   
                   # Save files to Database
                   saveToDB(conn, nameList, contentList)
-                        
 runServer()

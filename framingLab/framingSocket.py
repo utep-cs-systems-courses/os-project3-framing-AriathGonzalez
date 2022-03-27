@@ -13,11 +13,7 @@ def frameReader(conn):
     if len(data) == 0:
         print ("Nothing read, terminating...")
         conn.send("0".encode())
-
-    print ("Received '%s'" % (data))
-    print (type(data))
-
-    nameList = []
+        
     contentList = []
 
     while len(data):
