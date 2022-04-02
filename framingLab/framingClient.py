@@ -6,29 +6,18 @@ sys.path.append("../lib")
 import params
 
 def archiver(fileList):
-    compressedFile = []
-    for fileName in fileList:
-        # If file exists, add to compression
+    byteArr = bytearray()
+
+    for i, fileName in enumerate(fileList):
         path = "files/" + fileName
-        
-        if os.path.exists(path):
-            # Open and read file
-            name = fileName
-            nameSize = str(len(name))
-            inFile = open(path, 'r')
-            content = inFile.read()
-            contentSize = str(len(content))
-            inFile.close()
-
-            # Only add if file is not empty
-            if contentSize == '0':
-                print ("File Empty")
-            else:
-                compressedFile.append(nameSize + name + contentSize + content)
-
-    # Join as string then encode
-    compressedFile = ''.join(compressedFile)
-    return compressedFile.encode()
+        with open(path, "rb") as file:
+            tmpByteArr = bytearray()
+            tmpByteArr = file.read()
+        if (i == 0):
+            byteArr = f"{len(tmpByteArr):08d}".encode() + tmpByteArr
+        else:
+            byteArr = byteArr + f"{len(tmpByteArr):08d}".encode() + tmpByteArr
+    return byteArr
 
 def client():
     switchesVarDefaults = (
@@ -75,7 +64,6 @@ def client():
 
 
     while 1:
-        
         # Receive files from user
         files = input().strip()
 

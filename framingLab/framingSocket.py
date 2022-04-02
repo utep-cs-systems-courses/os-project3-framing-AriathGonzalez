@@ -9,38 +9,24 @@ def frameWriter(socket, compressedFile):
 # Decompress compressed file from Client
 def frameReader(conn):
     data = conn.recv(1024).decode()
-    
+    print ("Received: ", data)
     if len(data) == 0:
         print ("Nothing read, terminating...")
         conn.send("0".encode())
-        
+
     contentList = []
 
-    while len(data):
-        # Get Name
-        nameSize = int(data[:firstChar(data)])
-        data = data[firstChar(data):]
-        
-        name = data[0:nameSize]
-        data = data[nameSize:]
-        
+    while len(data):    
         # Get Content
-        contentSize = int(data[:firstChar(data)])
-        data = data[firstChar(data):]
+        contentSize = int(data[:8])
+        data = data[8:]
+        print ("contentSize: ", contentSize)
 
         content = data[0:contentSize]
         data = data[contentSize:]
+        print ("content: ", content)
+        print ("data: ", data)
 
-        # Append to lists
-        nameList.append(name)
+        # Append to list
         contentList.append(content)
-    return (nameList, contentList)
-    
-# Finds position of first character, to get the size of files
-def firstChar(data):
-    for i in range(len(data)):
-        if data[i].isalpha():
-            return i
-    return -1
-                       
-                       
+    return contentList

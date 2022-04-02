@@ -5,10 +5,10 @@ from framingSocket import *
 sys.path.append("../lib")
 import params
 
-def saveToDB(socket, nameList, contentList):
+def saveToDB(socket, contentList):
       os.chdir("database")
-      for i in range(len(nameList)):
-            fileName = nameList[i]
+      for i in range(len(contentList)):
+            fileName = "file" + str(i) + ".txt"
             path = "database/" + fileName
                   
             # Create file if it doesnt exist
@@ -41,8 +41,8 @@ def runServer():
             print('Connected by', addr)
 
             if os.fork() == 0:   # Child becomes server
-                  nameList, contentList = frameReader(conn)
+                  contentList = frameReader(conn)
                   
                   # Save files to Database
-                  saveToDB(conn, nameList, contentList)
+                  saveToDB(conn, contentList)
 runServer()
