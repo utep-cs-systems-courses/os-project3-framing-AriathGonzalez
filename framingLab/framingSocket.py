@@ -1,32 +1,46 @@
 import socket, sys, re
 
-# Send compressed file to Server
-def frameWriter(socket, compressedFile):
-    while len(compressedFile):
-        bytesSent = socket.send(compressedFile)
-        compressedFile = compressedFile[bytesSent:]
-    
-# Decompress compressed file from Client
-def frameReader(conn):
-    data = conn.recv(1024).decode()
-    print ("Received: ", data)
-    if len(data) == 0:
-        print ("Nothing read, terminating...")
-        conn.send("0".encode())
-
+class FramingSocket:
+    size = 0
+    msg = ""
     contentList = []
+    
+    def __init__(self, socket):
+        self.socket = socket
 
-    while len(data):    
-        # Get Content
-        contentSize = int(data[:8])
-        data = data[8:]
-        print ("contentSize: ", contentSize)
+    def frameWriter(self, compressedFile):
+        bytesSent = self.socket.send(compressedFile)
+        compressedFile = compressedFile[bytesSent:]
 
-        content = data[0:contentSize]
-        data = data[contentSize:]
-        print ("content: ", content)
-        print ("data: ", data)
+    def frameReader(self):
+        while 1:
+            data = self.socket.recv(1024).decode()
+            if len(data) == 2:
+                self.contentList.append(self.msg)
+                self.msg = ""
+                break
 
-        # Append to list
-        contentList.append(content)
-    return contentList
+            while len(data):
+                if self.size == 0:
+                    try:
+                        self.size = int(data[:8])
+                        data = data[8:]
+                    except:
+                        print("Not an integer!")
+                
+                dataLen = len(data)
+                if dataLen >= self.size:
+                    content = data[0:self.size]
+                    data = data[self.size:]
+                    self.msg = self.msg + content
+                    self.size = self.size - self.size
+                    self.contentList.append(self.msg)
+                    self.msg = ""
+                elif dataLen < self.size:
+                    content = data[0:dataLen]
+                    data = data[dataLen:]
+                    self.size = self.size - dataLen
+                    self.msg = self.msg + content
+            if (self.size == 0): break
+            
+            

@@ -8,15 +8,12 @@ import params
 def archiver(fileList):
     byteArr = bytearray()
 
-    for i, fileName in enumerate(fileList):
+    for fileName in fileList:
         path = "files/" + fileName
         with open(path, "rb") as file:
             tmpByteArr = bytearray()
             tmpByteArr = file.read()
-        if (i == 0):
-            byteArr = f"{len(tmpByteArr):08d}".encode() + tmpByteArr
-        else:
-            byteArr = byteArr + f"{len(tmpByteArr):08d}".encode() + tmpByteArr
+        byteArr = byteArr + f"{len(tmpByteArr):08d}".encode() + tmpByteArr
     return byteArr
 
 def client():
@@ -69,16 +66,20 @@ def client():
 
         fileList = files.split()
         compressedFile = archiver(fileList)
-        frameWriter(s, compressedFile)
+        print(compressedFile)
+        print("Type: ", type(compressedFile))
+        fw = FramingSocket(s)
+        fw.frameWriter(compressedFile)
+        #frameWriter(s, compressedFile)
         
         # Check if successful transfer
-        status = s.recv(1024).decode()
-        status = int(status)
+        #status = s.recv(1024).decode()
+        #status = int(status)
         
-        if (status):
-            print ("Successful in adding new file to Database.")
-            sys.exit(1)
-        elif (not status):
-            print ("Unsuccessful in adding new file to Database.")
-            sys.exit(0)
+        #if (status):
+            #print ("Successful in adding new file to Database.")
+            #sys.exit(1)
+        #elif (not status):
+            #print ("Unsuccessful in adding new file to Database.")
+            #sys.exit(0)
 client()              

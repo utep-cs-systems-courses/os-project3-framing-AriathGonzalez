@@ -25,27 +25,24 @@ class Worker(threading.Thread):
         return success
     
     def run(self):
-        nameList, contentList = frameReader(self.conn)
-        os.chdir("database")
+        contentList = frameReader(self.conn)
+        directory = os.getcwd()
         
-        for (name, content) in zip(nameList, contentList):
-            canSave = self.check(name)
+        for content in contentList:
+            fileCount = len(os.listdir(directory))
+            fileName = "file" + str(fileCount + 1) + ".txt"
+            canSave = self.check(fileName)
 
             if (canSave):
-                path = "database/" + name
+                open(fileName, 'x')
 
-                # Create file if it doesnt exist
-                if not os.path.exists(path):
-                    open(name, 'x')
-
-                    # Write to file
-                    with open(name, 'w') as outFile:
-                        outFile.write(content)
-                elif os.path.exists(path):
-                    print ("File already exists in database")
+                # Write to file
+                with open(fileName, 'w') as outFile:
+                    outFile.write(content)
+                
             else:
                 print ("File is in active")
                 self.conn.send("0".encode())   # Unsuccessful
 
-            self.activeFiles.remove(name)
+            self.activeFiles.remove(fileName)
         self.conn.send("1".encode())   # Successful

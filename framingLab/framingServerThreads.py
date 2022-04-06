@@ -25,4 +25,5 @@ def runServer():
         worker = Worker(conn, addr)
         worker.start()
 
+os.chdir("database")
 runServer()

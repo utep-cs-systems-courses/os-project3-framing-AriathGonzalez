@@ -7,20 +7,21 @@ import params
 
 def saveToDB(socket, contentList):
       os.chdir("database")
-      for i in range(len(contentList)):
-            fileName = "file" + str(i) + ".txt"
-            path = "database/" + fileName
-                  
-            # Create file if it doesnt exist
-            if not os.path.exists(path):
-                  open(fileName, 'x')
+      directory = os.getcwd()
+      
+      for content in contentList:
+            fileCount = len(os.listdir(directory))   # Get count of fileNames in DB
 
-                  # Write to file
-                  with open(fileName, "w") as outFile:
-                        outFile.write(contentList[i])
-            elif os.path.exists(path):
-                  print ("File already exists in database")
-      socket.send("1".encode())   # Success
+            print (fileCount)
+
+            fileName = "file" + str(fileCount + 1) + ".txt"
+                  
+            open(fileName, 'x')
+
+            # Write to file
+            with open(fileName, "w") as outFile:
+                  outFile.write(content)
+      #socket.send("1".encode())   # Success
                             
 def runServer():
       switchesVarDefaults = (
@@ -38,11 +39,16 @@ def runServer():
 
       while 1:
             conn, addr = s.accept()   # Accept incoming request
+            fr = FramingSocket(conn)
             print('Connected by', addr)
 
             if os.fork() == 0:   # Child becomes server
-                  contentList = frameReader(conn)
-                  
+                  fr.frameReader()
+                  contentList = fr.contentList
+
+                  print("Printing content...")
+                  for content in contentList:
+                        print(content)
                   # Save files to Database
                   saveToDB(conn, contentList)
 runServer()
