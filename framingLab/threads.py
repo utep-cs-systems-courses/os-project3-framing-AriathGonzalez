@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import itertools, os, sys, threading
+import os, sys, threading
 from framingSocket import *
 
 class Worker(threading.Thread):
@@ -25,24 +25,29 @@ class Worker(threading.Thread):
         return success
     
     def run(self):
-        contentList = frameReader(self.conn)
+        fr = FramingSocket(self.conn)
+        fr.frameReader()
+        nameList = fr.nameList
+        contentList = fr.contentList
         directory = os.getcwd()
-        
-        for content in contentList:
-            fileCount = len(os.listdir(directory))
-            fileName = "file" + str(fileCount + 1) + ".txt"
-            canSave = self.check(fileName)
 
+        for (name, content) in zip(nameList, contentList):
+            canSave = self.check(name)
             if (canSave):
-                open(fileName, 'x')
+                path = "database/" + name
 
-                # Write to file
-                with open(fileName, 'w') as outFile:
-                    outFile.write(content)
-                
+                # Create file if it doesnt exist
+                if not os.path.exists(path):
+                    open(name, 'x')
+
+                    # Write to file
+                    with open(name, 'w') as outFile:
+                        outFile.write(content)
+                elif os.path.exists(path):
+                    print("File already exists in database")
             else:
-                print ("File is in active")
-                self.conn.send("0".encode())   # Unsuccessful
+                print("File is in active")
+                self.conn.send("0".encode())  # Unsuccessful
 
-            self.activeFiles.remove(fileName)
-        self.conn.send("1".encode())   # Successful
+            self.activeFiles.remove(name)
+        self.conn.send("1".encode())  # Successful

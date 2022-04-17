@@ -2,8 +2,7 @@
 
 import os, re, socket, sys
 from framingSocket import *
-sys.path.append("../lib")
-import params
+from lib import params
 
 def archiver(fileList):
     byteArr = bytearray()
@@ -13,12 +12,14 @@ def archiver(fileList):
         with open(path, "rb") as file:
             tmpByteArr = bytearray()
             tmpByteArr = file.read()
-        byteArr = byteArr + f"{len(tmpByteArr):08d}".encode() + tmpByteArr
+        tmpFile = f"{len(fileName):03d}".encode() + fileName.encode()
+        byteArr = byteArr + tmpFile + f"{len(tmpByteArr):08d}".encode() + tmpByteArr
     return byteArr
 
 def client():
+    # Server 50001, Stammer 50000
     switchesVarDefaults = (
-        (('-s', "--server"), "server", "127.0.0.1:50001"),
+        (('-s', "--server"), "server", "127.0.0.1:50000"),
     )
       
     paramMap = params.parseParams(switchesVarDefaults)
@@ -66,20 +67,17 @@ def client():
 
         fileList = files.split()
         compressedFile = archiver(fileList)
-        print(compressedFile)
-        print("Type: ", type(compressedFile))
         fw = FramingSocket(s)
         fw.frameWriter(compressedFile)
-        #frameWriter(s, compressedFile)
-        
+
         # Check if successful transfer
-        #status = s.recv(1024).decode()
-        #status = int(status)
+        status = s.recv(1024).decode()
+        status = int(status)
         
-        #if (status):
-            #print ("Successful in adding new file to Database.")
-            #sys.exit(1)
-        #elif (not status):
-            #print ("Unsuccessful in adding new file to Database.")
-            #sys.exit(0)
-client()              
+        if (status):
+            print ("Successful in adding new file to Database.")
+            sys.exit(1)
+        elif (not status):
+            print ("Unsuccessful in adding new file to Database.")
+            sys.exit(0)
+client()
