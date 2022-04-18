@@ -9,7 +9,7 @@ import random
 import re
 
 sys.path.append("../lib")       # for params
-import params
+from lib import params
 
 switchesVarDefaults = (
     (('-l', '--listenPort') ,'listenPort', 50000),

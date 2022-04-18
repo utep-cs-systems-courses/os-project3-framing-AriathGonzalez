@@ -3,8 +3,8 @@ import socket, sys, re
 class FramingSocket:
     contentSize = 0
     nameSize = 0
-    currContent = ""  # Member this used to be msg...
-    currName = ""   #
+    currContent = ""
+    currName = ""
     nameList = []
     contentList = []
     extractContent = False
@@ -18,8 +18,8 @@ class FramingSocket:
 
     def frameReader(self):
         while 1:
-            data = self.socket.recv(1024).decode()
-            if len(data) == 2:
+            data = self.socket.recv(1024).decode('utf-8','ignore')
+            if len(data) == 0:
                 self.updateLists()
                 self.resetData()
                 break
@@ -34,7 +34,7 @@ class FramingSocket:
                         print("Not an int!")
 
                 # Get content size.
-                if self.extractContent:
+                if self.contentSize == 0 and self.extractContent:
                     try:
                         self.contentSize = int(data[:8])
                         data = data[8:]
@@ -48,8 +48,7 @@ class FramingSocket:
                 elif self.contentSize > 0:
                     data = self.getContent(dataLen, data)
 
-            if (self.nameSize == 0 and self.contentSize == 0 and not self.extractContent):
-                break
+            if (self.nameSize == 0 and self.contentSize == 0 and not self.extractContent): break
 
     def getFile(self, dataLen, data):
         # Can get full file in this iteration.
@@ -63,11 +62,11 @@ class FramingSocket:
             self.extractContent = True  # Fully got file -> Time to get content!
         # Can only get a portion of file in this iteration.
         elif dataLen < self.nameSize:
-            fileName = data[0:dataLen]
+            fileName = data[0] if dataLen == 1 else data[0:dataLen]
             data = data[dataLen:]
             self.nameSize = self.nameSize - dataLen
             self.currName = self.currName + fileName
-        return data
+        return data     # Updates data on frameReader().
 
     def getContent(self, dataLen, data):
         if dataLen >= self.contentSize:
@@ -79,14 +78,16 @@ class FramingSocket:
             self.currContent = ""
             self.extractContent = False
         elif dataLen < self.contentSize:
-            content = data[0:dataLen]
+            content = data[0] if dataLen == 1 else data[0:dataLen]
             data = data[dataLen:]
             self.contentSize = self.contentSize - dataLen
             self.currContent = self.currContent + content
         return data
+
     def updateLists(self):
         self.nameList.append(self.currName)
         self.contentList.append(self.currContent)
+
     def resetData(self):
         self.currName = ""
         self.currContent = ""

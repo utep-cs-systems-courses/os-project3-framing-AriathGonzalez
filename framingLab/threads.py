@@ -45,9 +45,16 @@ class Worker(threading.Thread):
                         outFile.write(content)
                 elif os.path.exists(path):
                     print("File already exists in database")
+            # If two files in transfer, change the name of the second file.
             else:
-                print("File is in active")
-                self.conn.send("0".encode())  # Unsuccessful
+                print("File is in active transfer.")
+                pos = name.index('.')
+                num = int(name[pos - 1])   # Get position of number in file.
+                newName = "file" + str(num + 1) + ".txt"
 
-            self.activeFiles.remove(name)
+                # Create file
+                open(newName, 'x')
+
+                with open(newName, 'w') as outFile:
+                    outFile.write(content)
         self.conn.send("1".encode())  # Successful
